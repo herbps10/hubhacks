@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  body {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  #map {
+    position: absolute;
+    height: 90%;
+    width: 70%;
+    right: 0px;
+    top: 10%;
+  }
+
+  #chart-wrapper {
+    position: absolute;
+    height: 90%;
+    top: 10%;
+    left: 0px;
+    overflow: scroll;
+  }
+
+  rect.box {
+    fill: steelblue;
+  }
+
+  .tick {
+    stroke-width: 1;
+    stroke: #ccc;
+  }
+
+  .tooltip {
+    position: absolute;
+    width: 150px;
+    height: 60px;
+    text-align: center;
+    line-height: 60px;
+    font-size: 18pt;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: white;
+    background: lightsteelblue;
+  }
+</style>
+<body>
+  
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+<div id='map'></div>
+<div id='chart-wrapper'></div>
+
+<div>
+  <label>Start Location: </label>
+  <input type='text' id='startLocation' value='10 Jamaicaway'>
+
+  <label>End Location: </label>
+  <input type='text' id='endLocation' value='Harvard Square'>
+
+  <input type='button' id='go' value='Find Route'>
+</div>
+
+<script>
+
+// GOOGLE MAPS API
+var mapsApiKey = "AIzaSyBZj6oFwOYPjyvySj8wT1WU0keMpBlgbKc";
+
+/*
+$.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=" + mapsApiKey, function(data) {
+    console.log(data);
+});
+*/
+
+$("#go").click(function() {
+    var startAddress = $("#startLocation").val();
+    var endAddress = $("#endLocation").val();
+
+    console.log(startAddress, endAddress);
+
+    var startCoords = '';
+    var endCoords = '';
+
+    $.when(
+        $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + startAddress + "&key=" + mapsApiKey),
+        $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + endAddress + "&key=" + mapsApiKey)
+    ).then(function(startData, endData) {
+      var startCoords = startData[0].results[0].geometry.location;
+      var endCoords = endData[0].results[0].geometry.location;
+
+      L.circle([startCoords.lat, startCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}).addTo(map);
+      L.circle([endCoords.lat, endCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}).addTo(map);
+
+      var closestToStart = closestStation(startCoords);
+      highlightStation(closestToStart.id);
+
+      var closestToEnd = closestStation(endCoords);
+      highlightStation(closestToEnd.id);
+
+      map.addLayer(L.polyline([[startCoords.lat, startCoords.lng], [closestToStart.lat, closestToStart.lng]], {
+        color: 'green'
+      }));
+
+      map.addLayer(L.polyline([[closestToStart.lat, closestToStart.lng], [closestToEnd.lat, closestToEnd.lng]], {
+          color: 'red'
+      }));
+      
+      map.addLayer(L.polyline([[endCoords.lat, endCoords.lng], [closestToEnd.lat, closestToEnd.lng]], {
+          color: 'green'
+      }));
+
+
+
+    });
+});
+
+var stationCircles = {};
+var stations = [];
+
+function closestStation(coords) {
+  var closestDistance = null;
+  var closestStation = null;
+  stations.forEach(function(station) {
+    var distance = Math.pow(Math.pow(station.lat - coords.lat, 2) + Math.pow(station.lng - coords.lng, 2), 0.50);
+
+    if(closestDistance == null || distance < closestDistance) {
+      closestStation = station;
+      closestDistance = distance;
+    }
+  });
+
+  return closestStation;
+}
+
+
+//
+// LEAFLET
+//
+
+var map = L.map('map').setView([42.3511355, -71.0729669], 13);
+
+L.tileLayer('http://{s}.tiles.mapbox.com/v3/herbps10.lh629276/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18
+}).addTo(map);
+
+
+var circleStyle = {
+    color: '#ccc',
+    fillColor: 'white',
+    fillOpacity: 0.5
+};
+
+
+d3.csv("hubway_stations.csv", function(error, data) {
+    if(error) console.error(error);
+
+    stations = data;
+
+    stations.forEach(function(station) {
+      station.lat = parseFloat(station.lat);
+      station.lng = parseFloat(station.lng);
+
+      var circle = L.circle([parseFloat(station.lat), parseFloat(station.lng)], 100, circleStyle).addTo(map);
+
+      circle.bindPopup(station.station);
+
+      stationCircles[station.id] = circle;
+    });
+
+});
+
+var chartOptions = {
+        width: 350,
+        height: 55000,
+        domain: [0, 100]
+    };
+
+var chart = d3.select("#chart-wrapper").append("svg")
+        .attr("width", chartOptions.width)
+        .attr("height", chartOptions.height);
+
+var times = [];
+var sortBy = 'middle';
+
+var lowPercentile = 0.25;
+var highPercentile = 0.75;
+
+var tooltip = d3.select('body').append('div')
+    .attr('class', 'tooltip')
+    .style('opacity', 0);
+
+d3.csv("hubway_travel_times.csv", function(error, data) {
+  if (error) return console.error(error);
+
+  data.forEach(function(row) {
+    for(var i = 0; i <= 100; i++) {
+      row[i + '%'] = parseFloat(row[i + '%']);
+    }
+  });
+
+  times = data;
+
+  draw_distribution();
+});
+
+function draw_distribution() {
+    var boxHeight = 8;
+
+    scale = d3.scale.linear().domain(chartOptions.domain).range([0, chartOptions.width]);
+
+    times = times.sort(function(x, y) {
+      if(sortBy == 'spread') {
+        var highStr = Math.round(highPercentile * 100) + '%';
+        var lowStr = Math.round(lowPercentile * 100) + '%';
+
+        return (y[highStr] - y[lowStr]) - (x[highStr] - x[lowStr]);
+      }
+      else {
+        var percentile;
+        if(sortBy == 'middle') {
+          percentile = Math.round((highPercentile - lowPercentile) * 100);
+        }
+        else if(sortBy == 'best') {
+          percentile = Math.round(highPercentile * 100);
+        }
+        else if(sortBy == 'worst') {
+          percentile = Math.round(lowPercentile * 100);
+        }
+
+        str = percentile + '%';
+        return y[str] - x[str];
+      }
+    });
+
+    var boxes = chart.selectAll(".box")
+      .data(times, function(d) { return d.strt_statn + '-' + d.end_statn; });
+
+    boxes.enter().append("rect")
+        .attr('class', 'box');
+
+    boxes.attr('width', function(d) {
+      return scale(d[Math.round(highPercentile * 100) + '%']) - scale(d[Math.round(lowPercentile * 100) + '%']);
+    })
+
+    .attr('height', boxHeight)
+    .attr('x', function(d) {
+      return scale(d[Math.round(lowPercentile * 100) + '%']);
+    })
+    .on('mouseover', function(d) {
+      d3.select(this).style('fill', 'lightsteelblue');
+      tooltip.style('opacity', 1)
+        .style('left', (d3.event.pageX + 15) + 'px')
+        .style('top', (d3.event.pageY + 15) + 'px')
+        .html(d.strt_statn + ' - ' + d.end_statn);
+
+      highlight_route(d.strt_statn, d.end_statn);
+    })
+    .on('mouseout', function(d) {
+      d3.select(this).style('fill', 'steelblue');
+      tooltip.style('opacity', 0)
+    })
+    .transition()
+    .attr('y', function(d, i) { return i * (boxHeight + 3); });
+
+
+    var labels = chart.selectAll('.label')
+      .data(times, function(d) { return d.route; });
+
+    labels.enter().append('text')
+      .attr('class', 'label');
+
+    labels.attr('x', 10)
+      .text(function(d) { return d.route })
+      .transition()
+      .attr('y', function(d, i) { return i * (boxHeight + 3); });
+
+
+    var ticks = chart.selectAll('.tick')
+      .data([0, 1, 2, 3])
+      .enter()
+      .append('line')
+      .attr('class', 'tick')
+      .attr('x1', function(d) { return scale(chartOptions.domain[0] + (chartOptions.domain[1] - chartOptions.domain[0]) / 3 * d); })
+      .attr('x2', function(d) { return scale(chartOptions.domain[0] + (chartOptions.domain[1] - chartOptions.domain[0]) / 3 * d); })
+      .attr('y1', 0)
+      .attr('y2', chartOptions.height);
+}
+
+function highlight_route(start, end) {
+    clearHighlights();
+    
+
+    highlightStation(start);
+    highlightStation(end);
+}
+
+function highlightStation(id) {
+    var hoverStyle = {
+        fillColor: 'red',
+        color: 'red'
+    };
+
+    stationCircles[id].setStyle(hoverStyle);
+}
+
+function clearHighlights() {
+  stations.forEach(function(station) {
+    stationCircles[station.id].setStyle(circleStyle);
+  });
+}
+
+</script>
+
+
+</body>
+</html>

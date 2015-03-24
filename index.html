@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  svg {
+  }
+
+  path.basemap {
+    stroke-width: 1px;
+    stroke: white;
+    fill: steelblue;
+  }
+
+  path.buses {
+    stroke-width: 2px;
+    fill: transparent;
+  }
+
+</style>
+<body>
+  <input type="range", min="0", max="100", step="1" id='percentile' value='50' />
+  <div id='percentile-reader'>50</div>
+
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script>
+
+    var width = 1024,
+        height = 1024;
+
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    /*var projection = d3.geo.mercator();*/
+    var projection = d3.geo.mercator()
+      .scale(80000)
+      .center([-71.05701507699997,42.31250974805859]) //projection center
+      .translate([width/2,height/2]) //translate to center the map in view
+
+    var path = d3.geo.path()
+        .projection(projection);
+
+    var routes;
+    var times = [];
+
+    var percentile = 0.5;
+    var domain = [-20, 10];
+
+    var colorScale = d3.scale.linear().domain(domain).range(['red', 'green'])
+
+    var legend = d3.select("body").append("svg")
+      .attr("width", 100)
+      .attr("height", 300);
+
+    for(var i = 0; i <= 5; i++) {
+      var val = domain[0] + (domain[1] - domain[0]) / 5 * i;
+      legend.append('rect')
+        .attr('x', 35)
+        .attr('y', i * 50)
+        .attr('width', 50)
+        .attr('height', 50)
+        .attr('fill', colorScale(val));
+
+      legend.append('text')
+        .attr('x', 0)
+        .attr('y', i * 50 + 30)
+        .text(val);
+    }
+
+    d3.json("boston.json", function(error, data) {
+      if (error) return console.error(error);
+
+      /*
+      svg.append("path")
+          //.datum(topojson.feature(data, data.objects.neighborhoods))
+          .datum(topojson.feature(data, data.objects.neighborhoods))
+          .attr("d", path)
+          .attr('class', 'basemap');
+      */
+
+      routes = data;
+
+      d3.csv("earlyness_by_route.csv", function(error, data) {
+        if (error) return console.error(error);
+
+        data.forEach(function(row) {
+          for(var i = 0; i <= 100; i++) {
+            row[i + '%'] = parseFloat(row[i + '%']);
+          }
+        });
+
+        times = d3.nest()
+          .key(function(d) { return d.route; })
+          .map(data);
+
+        console.log(times);
+
+        draw_map(routes);
+      });
+    });
+
+    function draw_map(data) {
+        var buses = svg.selectAll(".buses")
+            .data(topojson.feature(data, data.objects.boston_bus_lines).features);
+
+        buses.enter().append("path")
+            .attr('d', path)
+            .attr('class', 'buses');
+
+        buses.attr('stroke', function(d) {
+              var route = d.properties.MBTA_ROUTE;
+
+
+              if(times[route] != undefined) {
+                var percentileStr = Math.round(percentile * 100) + '%';
+                var time = times[route][0][percentileStr];
+
+                var color = colorScale(time);
+                return color;
+              }
+              return "#eee";
+            })
+    }
+
+    $("#percentile").on("change input", function() {
+      var val = $(this).val();
+      $("#percentile-reader").text(val);
+
+      percentile = parseFloat(val) / 100;
+
+      draw_map(routes);
+    });
+
+  </script>
+</body>
+</html>

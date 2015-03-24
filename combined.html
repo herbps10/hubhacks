@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  #chart-wrapper {
+    position: absolute;
+    overflow: scroll;
+    left: 0px;
+    height: 100%;
+  }
+
+  #map-wrapper {
+    position: absolute;
+    right: 0px;
+    height: 100%;
+  }
+
+  svg {
+    vertical-align: top;
+  }
+
+  rect.box {
+    fill: steelblue;
+  }
+
+  .tick {
+    stroke-width: 1;
+    stroke: #ccc;
+  }
+
+  path.bus {
+    stroke-width: 1;
+    stroke: #ccc;
+    fill: transparent;
+  }
+
+  path.bus.highlight {
+    stroke-width: 5;
+    stroke: red;
+    fill: transparent;
+  }
+
+  text.label {
+    fill: gray;
+    font-size: 6pt;
+  }
+
+  .tooltip {
+    position: absolute;
+    width: 150px;
+    height: 60px;
+    text-align: center;
+    line-height: 60px;
+    font-size: 18pt;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: white;
+    background: lightsteelblue;
+  }
+
+</style>
+<body>
+
+  <div>
+    <input type='range' min='0' max='100' step='1' id='low' value='25' />
+    <div id='low-reader'>25</div>
+    <input type='range' min='0' max='100' step='1' id='high' value='75' />
+    <div id='high-reader'>75</div>
+    <input type='radio' name='sort' value='worst'>
+    <input type='radio' name='sort' value='middle' checked>
+    <input type='radio' name='sort' value='best'>
+  </div>
+
+  <div id='chart-wrapper'>
+  </div>
+
+  <div id='map-wrapper'>
+  </div>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js'></script>
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script>
+
+    var chartOptions = {
+        width: 700,
+        height: 2000,
+        domain: [-20, 10]
+    };
+
+    var mapOptions = {
+        width: 1200,
+        height: 1200
+    }
+    
+    var chart = d3.select("#chart-wrapper").append("svg")
+        .attr("width", chartOptions.width)
+        .attr("height", chartOptions.height);
+
+    var map = d3.select("#map-wrapper").append("svg")
+        .attr("id", "map")
+        .attr("width", mapOptions.width)
+        .attr("height", mapOptions.height);
+
+    var times = [];
+    var routes = [];
+    var routes_features;
+    var sortBy = 'middle';
+
+    var lowPercentile = 0.25;
+    var highPercentile = 0.75;
+
+    var tooltip = d3.select('body').append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 0);
+
+    d3.csv("earlyness_by_route.csv", function(error, data) {
+      if (error) return console.error(error);
+
+      data.forEach(function(row) {
+        for(var i = 0; i <= 100; i++) {
+          row[i + '%'] = parseFloat(row[i + '%']);
+        }
+      });
+
+      times = data;
+
+      draw_distribution();
+    });
+
+    d3.json("boston_simple.json", function(error, data) {
+        if(error) return console.error(error);
+
+        routes = data;
+        routes_features = topojson.feature(data, data.objects.boston_bus_lines).features
+        draw_map();
+    });
+
+
+    function highlight_route(route_number) {
+        routes_features.forEach(function(row) {
+            if(row.properties['MBTA_ROUTE'] == "" + route_number) {
+                row.highlighted = true;    
+            }
+            else {
+                row.highlighted = false;
+            }
+        });
+    }
+
+
+    function draw_map() {
+        var projection = d3.geo.mercator()
+              .scale(80000)
+              .center([-71.05701507699997,42.31250974805859]) //projection center
+              .translate([mapOptions.width/2, mapOptions.height/2]) //translate to center the map in view
+
+        var path = d3.geo.path()
+            .projection(projection);
+
+        var buses = map.selectAll('.bus')
+                .data(routes_features);
+
+        buses.enter().append("path")
+                .attr('d', path)
+                .attr('class', 'bus');
+
+        buses.attr('class', function(d) {
+            if(d.highlighted == true) {
+                return 'bus highlight';
+            }
+
+            return 'bus';
+        });
+    }
+
+
+    function draw_distribution() {
+        var boxHeight = 8;
+
+        scale = d3.scale.linear().domain(chartOptions.domain).range([0, chartOptions.width]);
+
+        times = times.sort(function(x, y) {
+          var percentile;
+          if(sortBy == 'middle') {
+            percentile = Math.round((highPercentile - lowPercentile) * 100);
+          }
+          else if(sortBy == 'best') {
+            percentile = Math.round(highPercentile * 100);
+          }
+          else if(sortBy == 'worst') {
+            percentile = Math.round(lowPercentile * 100);
+          }
+
+          str = percentile + '%';
+          return y[str] - x[str];
+        });
+        
+        var boxes = chart.selectAll(".box")
+          .data(times, function(d) { return d.route; });
+
+        boxes.enter().append("rect")
+            .attr('class', 'box');
+
+        boxes.attr('width', function(d) {
+          return scale(d[Math.round(highPercentile * 100) + '%']) - scale(d[Math.round(lowPercentile * 100) + '%']);
+        })
+
+        .attr('height', boxHeight)
+        .attr('x', function(d) { return scale(d[Math.round(lowPercentile * 100) + '%']) })
+        .on('mouseover', function(d) {
+          d3.select(this).style('fill', 'lightsteelblue');
+          tooltip.style('opacity', 1)
+            .style('left', (d3.event.pageX + 15) + 'px')
+            .style('top', (d3.event.pageY + 15) + 'px')
+            .html("Route " + d.route);
+
+          highlight_route(d.route);
+          draw_map();
+        })
+        .on('mouseout', function(d) {
+          d3.select(this).style('fill', 'steelblue');
+          tooltip.style('opacity', 0)
+        })
+        .transition()
+        .attr('y', function(d, i) { return i * (boxHeight + 3); });
+
+
+        var labels = chart.selectAll('.label')
+          .data(times, function(d) { return d.route; });
+
+        labels.enter().append('text')
+          .attr('class', 'label');
+
+        labels.attr('x', 10)
+          .text(function(d) { return d.route })
+          .transition()
+          .attr('y', function(d, i) { return i * (boxHeight + 3); });
+
+
+        var ticks = chart.selectAll('.tick')
+          .data([0, 1, 2, 3])
+          .enter()
+          .append('line')
+          .attr('class', 'tick')
+          .attr('x1', function(d) { return scale(chartOptions.domain[0] + (chartOptions.domain[1] - chartOptions.domain[0]) / 3 * d); })
+          .attr('x2', function(d) { return scale(chartOptions.domain[0] + (chartOptions.domain[1] - chartOptions.domain[0]) / 3 * d); })
+          .attr('y1', 0)
+          .attr('y2', chartOptions.height);
+    }
+    
+    $("#low").on("change input", function() {
+      var val = $(this).val();
+      $("#low-reader").text(val);
+
+      lowPercentile = parseFloat(val) / 100;
+
+      draw_distribution();
+    });
+
+    $("#high").on("change input", function() {
+      var val = $(this).val();
+      $("#high-reader").text(val);
+
+      highPercentile = parseFloat(val) / 100;
+
+      draw_distribution();
+    });
+
+    $("input[name=sort]").on("change", function() {
+      var val = $(this).val();
+
+      sortBy = val;
+
+      draw_distribution();
+    });
+  </script>
+</body>
+</html>
