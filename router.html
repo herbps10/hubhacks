@@ -86,11 +86,18 @@ $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphit
 });
 */
 
+var mapLayers = [];
+
 $("#go").click(function() {
     var startAddress = $("#startLocation").val();
     var endAddress = $("#endLocation").val();
 
-    console.log(startAddress, endAddress);
+    clearHighlights();
+
+    for(var i = 0; i < mapLayers.length; i++) {
+      map.removeLayer(mapLayers[i]);
+    }
+    mapLayers = [];
 
     var startCoords = '';
     var endCoords = '';
@@ -99,13 +106,11 @@ $("#go").click(function() {
         $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + startAddress + "&key=" + mapsApiKey),
         $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + endAddress + "&key=" + mapsApiKey)
     ).then(function(startData, endData) {
-
-
       var startCoords = startData[0].results[0].geometry.location;
       var endCoords = endData[0].results[0].geometry.location;
 
-      L.circle([startCoords.lat, startCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}).addTo(map);
-      L.circle([endCoords.lat, endCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}).addTo(map);
+      mapLayers.push(L.circle([startCoords.lat, startCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}));
+      mapLayers.push(L.circle([endCoords.lat, endCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}));
 
       var closestToStart = closestStation(startCoords);
       highlightStation(closestToStart.id);
@@ -113,17 +118,21 @@ $("#go").click(function() {
       var closestToEnd = closestStation(endCoords);
       highlightStation(closestToEnd.id);
 
-      map.addLayer(L.polyline([[startCoords.lat, startCoords.lng], [closestToStart.lat, closestToStart.lng]], {
+      mapLayers.push(L.polyline([[startCoords.lat, startCoords.lng], [closestToStart.lat, closestToStart.lng]], {
         color: 'green'
       }));
 
-      map.addLayer(L.polyline([[closestToStart.lat, closestToStart.lng], [closestToEnd.lat, closestToEnd.lng]], {
+      mapLayers.push(L.polyline([[closestToStart.lat, closestToStart.lng], [closestToEnd.lat, closestToEnd.lng]], {
           color: 'red'
       }));
       
-      map.addLayer(L.polyline([[endCoords.lat, endCoords.lng], [closestToEnd.lat, closestToEnd.lng]], {
+      mapLayers.push(L.polyline([[endCoords.lat, endCoords.lng], [closestToEnd.lat, closestToEnd.lng]], {
           color: 'green'
       }));
+
+      for(var i = 0; i < mapLayers.length; i++) {
+        map.addLayer(mapLayers[i]);
+      }
 
       // Get all the routes that have been made on between these stops
       $.getJSON("http://localhost:3000/hubway-density.json", { start: closestToStart.id, end: closestToEnd.id }, plotPreviousTrips);
