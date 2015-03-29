@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  body {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  #map {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    left: 0px;
+    top: 0px;
+  }
+
+  #results {
+    position: absolute;
+    top: 140px;
+    height: 200px;
+    left: 20px;
+    width: 500px;
+    background: rgba(255, 255, 255, 0.75);
+    z-index: 100;
+  }
+
+  #results path.line {
+    stroke-width: 2;
+    stroke: red;
+    fill: transparent;
+  }
+
+  #results .axis path, #results .axis line {
+    fill: none;
+    stroke: #555;
+    shape-rendering: crispEdges;
+  }
+
+  #results .axis text {
+    font-size: 8pt;
+    font-family: sans-Serif;
+  }
+
+  #controls {
+    box-sizing: border-box;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 500px;
+    height: 100px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.75);
+    z-index: 100;
+  }
+</style>
+<body>
+  
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+<div id='results'>
+</div>
+
+<div id='controls'>
+  <label>Start Location: </label>
+  <input type='text' id='startLocation' value='10 Jamaicaway'>
+
+  <label>End Location: </label>
+  <input type='text' id='endLocation' value='Harvard Square'>
+
+  <input type='button' id='go' value='Find Route'>
+</div>
+
+<div id='map'></div>
+
+<script>
+
+// GOOGLE MAPS API
+var mapsApiKey = "AIzaSyBZj6oFwOYPjyvySj8wT1WU0keMpBlgbKc";
+
+/*
+$.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=" + mapsApiKey, function(data) {
+    console.log(data);
+});
+*/
+
+var mapLayers = [];
+
+$("#go").click(function() {
+    var startAddress = $("#startLocation").val();
+    var endAddress = $("#endLocation").val();
+
+    clearHighlights();
+
+    $("#results").html("");
+
+    for(var i = 0; i < mapLayers.length; i++) {
+      map.removeLayer(mapLayers[i]);
+    }
+    mapLayers = [];
+
+    var startCoords = '';
+    var endCoords = '';
+
+    $.when(
+        $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + startAddress + "&key=" + mapsApiKey),
+        $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?address=" + endAddress + "&key=" + mapsApiKey)
+    ).then(function(startData, endData) {
+      var startCoords = startData[0].results[0].geometry.location;
+      var endCoords = endData[0].results[0].geometry.location;
+
+      addHubway(startCoords, endCoords);
+      addTransit(startCoords, endCoords);
+    });
+});
+
+function addTransit(startCoords, endCoords) {
+  var data = {
+    fromPlace: startCoords.lat + ',' + startCoords.lng,
+    toPlace: endCoords.lat + ',' + endCoords.lng,
+    time: '5:00PM',
+    date: '02-24-2015',
+    maxWalkDistance: 800,
+    arriveBy: false,
+    wheelchair: false,
+    showIntermediateStops: false,
+    mode: 'BUSISH,WALK',
+    numItineraries: 1
+  };
+
+  $.getJSON("http://bikinginboston.com:8080/otp/routers/default/plan", data, function(results) {
+    var legs = results.plan.itineraries[0].legs;
+
+    var description = "<strong>Bus</strong>";
+    description += Math.round(results.plan.itineraries[0].duration / 60) + " minutes.";
+    description += "<ol>";
+
+    legs.forEach(function(leg) {
+      var color = 'blue';
+      if(leg.mode == 'WALK') { color = 'green'; }
+
+      var line = L.polyline([[leg.from.lat, leg.from.lon], [leg.to.lat, leg.to.lon]], { color: color });
+      mapLayers.push(line);
+      map.addLayer(line);
+
+      if(leg.mode == "BUS") {
+        description += "<li>";
+        description += "Route " + leg.route + " from " + leg.from.name + " to " + leg.to.name + ".<br/>";
+
+        var earlyness = routes[leg.route]['50%'];
+        if(earlyness < 0) {
+          description += "This route is normally " + (-earlyness) + ' minutes late';
+        }
+        else {
+          description += "This route is normally " + (earlyness) + ' minutes early';
+        }
+
+        description += "</li>";
+      }
+    });
+
+    description += "</ul>";
+    $("#results").append("<div>" + description + "</div>");
+  });
+}
+
+function addHubway(startCoords, endCoords) {
+  mapLayers.push(L.circle([startCoords.lat, startCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}));
+  mapLayers.push(L.circle([endCoords.lat, endCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}));
+
+  var closestToStart = closestStation(startCoords);
+  highlightStation(closestToStart.id);
+
+  var closestToEnd = closestStation(endCoords);
+  highlightStation(closestToEnd.id);
+
+  mapLayers.push(L.polyline([[startCoords.lat, startCoords.lng], [closestToStart.lat, closestToStart.lng]], {
+    color: 'green'
+  }));
+
+  mapLayers.push(L.polyline([[closestToStart.lat, closestToStart.lng], [closestToEnd.lat, closestToEnd.lng]], {
+      color: 'red'
+  }));
+  
+  mapLayers.push(L.polyline([[endCoords.lat, endCoords.lng], [closestToEnd.lat, closestToEnd.lng]], {
+      color: 'green'
+  }));
+
+  for(var i = 0; i < mapLayers.length; i++) {
+    map.addLayer(mapLayers[i]);
+  }
+
+  // Get all the routes that have been made on between these stops
+  $.getJSON("/hubway-density.json", { start: closestToStart.id, end: closestToEnd.id }, plotPreviousTrips);
+}
+
+function plotPreviousTrips(trips) {
+  var times = trips;
+
+  var xMax = d3.max(times);
+
+  var margin = { top: 20, right: 20, bottom: 40, left: 60 };
+  var width = 400 - margin.right - margin.left;
+  var height = 200 - margin.top - margin.bottom;
+
+  var x = d3.scale.linear()
+    .domain([0, xMax + 10])
+    .range([0, width]);
+
+  var sd = d3.deviation(times);
+  var scale = 1.06 * sd * Math.pow(times.length, -1.0/5.0);
+
+  //var kde = kernelDensityEstimator(epanechnikovKernel(7), x.ticks(100));
+  var kde = kernelDensityEstimator(gaussianKernel(scale), x.ticks(100));
+  var density = kde(times);
+
+  var ylim = d3.extent(density, function(row) { return row[1]; });
+
+  $("#results").append("<strong>Hubway</strong>");
+  var svg = d3.select("#results").append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+  var y = d3.scale.linear()
+    .domain([0, ylim[1]])
+    .range([height, 0]); 
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format("%"));
+
+  var line = d3.svg.line()
+    .x(function(d) { return x(d[0]) })
+    .y(function(d) { return y(d[1]) });
+
+  svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+  svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0, " + height + ")")
+    .call(xAxis);
+
+
+  svg.append("path")
+    .datum(kde(times))
+    .attr("class", "line")
+    .attr("d", line);
+}
+
+var stationCircles = {};
+var stations = [];
+
+function closestStation(coords) {
+  var closestDistance = null;
+  var closestStation = null;
+  stations.forEach(function(station) {
+    var distance = Math.pow(Math.pow(station.lat - coords.lat, 2) + Math.pow(station.lng - coords.lng, 2), 0.50);
+
+    if(closestDistance == null || distance < closestDistance) {
+      closestStation = station;
+      closestDistance = distance;
+    }
+  });
+
+  return closestStation;
+}
+
+
+//
+// LEAFLET
+//
+
+var map = L.map('map', {
+  zoomControl: false 
+}).setView([42.3511355, -71.0729669], 13);
+
+L.tileLayer('http://{s}.tiles.mapbox.com/v3/herbps10.lh629276/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    zoomControl: false
+}).addTo(map);
+
+var circleStyle = {
+    color: '#ccc',
+    fillColor: 'white',
+    fillOpacity: 0.5
+};
+
+d3.csv("hubway_stations.csv", function(error, data) {
+    if(error) console.error(error);
+
+    stations = data;
+
+    stations.forEach(function(station) {
+      station.lat = parseFloat(station.lat);
+      station.lng = parseFloat(station.lng);
+
+      var circle = L.circle([parseFloat(station.lat), parseFloat(station.lng)], 100, circleStyle).addTo(map);
+
+      circle.bindPopup(station.station);
+
+      stationCircles[station.id] = circle;
+    });
+});
+
+routes = {};
+
+d3.csv("earlyness_by_route.csv", function(error, data) {
+  if(error) console.error(error);
+
+  data.map(function(row) {
+    for(var i = 0; i <= 100; i++) {
+      row[i + '%'] = parseFloat(row[i + '%']); 
+    }
+    return row;
+  });
+
+  data.forEach(function(row) {
+    routes[row.route] = row;
+  });
+});
+
+function highlight_route(start, end) {
+    clearHighlights();
+
+    highlightStation(start);
+    highlightStation(end);
+}
+
+function highlightStation(id) {
+    var hoverStyle = {
+        fillColor: 'red',
+        color: 'red'
+    };
+
+    stationCircles[id].setStyle(hoverStyle);
+}
+
+function clearHighlights() {
+  stations.forEach(function(station) {
+    stationCircles[station.id].setStyle(circleStyle);
+  });
+}
+
+// From http://bl.ocks.org/mbostock/4341954
+function kernelDensityEstimator(kernel, x) {
+  return function(sample) {
+    return x.map(function(x) {
+      return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
+    });
+  };
+}
+
+function epanechnikovKernel(scale) {
+  return function(u) {
+    return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
+  };
+}
+
+function gaussianKernel(scale) {
+  return function(u) {
+    return (1.0 / (Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow(u / scale, 2))
+  }
+}
+
+</script>
+
+
+</body>
+</html>

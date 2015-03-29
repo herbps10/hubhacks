@@ -1,6 +1,7 @@
 var fs = require('fs');
 var mongojs = require('mongojs');
 var express = require('express');
+var path = require('path');
 
 var db = mongojs.connect("hubhacks");
 var hubway = db.collection('hubway');
@@ -36,15 +37,15 @@ app.get('/hubway-density.json', function(req, res) {
   var start = parseInt(req.query.start);
   var end = parseInt(req.query.end);
 
-  hubway.find({ strt_statn: start, end_statn: end, subsc_type: "Registered" }, function(err, rows) {
+  hubway.find({ strt_statn: start, end_statn: end }, function(err, rows) {
     res.json(rows.map(function(row) {
-       return {
-         start_date: row.start_date,
-         end_date: row.end_date
-       };
+      return row.duration / 60;
     }));
   });
 });
 
-var server = app.listen(3000, function() {
+app.use(express.static(path.join(__dirname, 'public')));
+
+var server = app.listen(80, function() {
+  console.log("Listening on port 80");
 });
