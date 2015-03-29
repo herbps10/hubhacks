@@ -20,7 +20,7 @@
     height: 200px;
     left: 20px;
     width: 500px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.75);
     z-index: 100;
   }
 
@@ -32,7 +32,7 @@
 
   #results .axis path, #results .axis line {
     fill: none;
-    stroke: #ccc;
+    stroke: #555;
     shape-rendering: crispEdges;
   }
 
@@ -49,7 +49,7 @@
     width: 500px;
     height: 100px;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.75);
     z-index: 100;
   }
 </style>
@@ -93,6 +93,8 @@ $("#go").click(function() {
     var endAddress = $("#endLocation").val();
 
     clearHighlights();
+
+    $("#results").html("");
 
     for(var i = 0; i < mapLayers.length; i++) {
       map.removeLayer(mapLayers[i]);
@@ -153,18 +155,28 @@ function plotPreviousTrips(trips) {
   var width = 400 - margin.right - margin.left;
   var height = 200 - margin.top - margin.bottom;
 
+  var x = d3.scale.linear()
+    .domain([0, xMax + 10])
+    .range([0, width]);
+
+  var sd = d3.deviation(times);
+  var scale = 1.06 * sd * Math.pow(times.length, -1.0/5.0);
+
+  //var kde = kernelDensityEstimator(epanechnikovKernel(7), x.ticks(100));
+  var kde = kernelDensityEstimator(gaussianKernel(scale), x.ticks(100));
+  var density = kde(times);
+
+  var ylim = d3.extent(density, function(row) { return row[1]; });
+
   var svg = d3.select("#results").html("").append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var x = d3.scale.linear()
-    .domain([0, xMax + 10])
-    .range([0, width]);
 
   var y = d3.scale.linear()
-    .domain([0, 0.2])
+    .domain([0, ylim[1]])
     .range([height, 0]); 
 
   var xAxis = d3.svg.axis()
@@ -189,7 +201,7 @@ function plotPreviousTrips(trips) {
     .attr("transform", "translate(0, " + height + ")")
     .call(xAxis);
 
-  var kde = kernelDensityEstimator(epanechnikovKernel(7), x.ticks(100));
+  
 
   svg.append("path")
     .datum(kde(times))
@@ -288,6 +300,12 @@ function epanechnikovKernel(scale) {
   return function(u) {
     return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
   };
+}
+
+function gaussianKernel(scale) {
+  return function(u) {
+    return (1.0 / (Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow(u / scale, 2))
+  }
 }
 
 </script>
