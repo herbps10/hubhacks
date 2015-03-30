@@ -335,8 +335,19 @@ var HubwayRoute = React.createClass({
   },
 
   componentDidMount: function() {
+    this.updateChart();
+  },
+
+  componentWillUpdate: function() {
+    this.updateChart();
+  },
+
+  updateChart: function() {
     var node = this.getDOMNode();
+    console.log($(node).find(".chart"));
+    $(node).find(".chart").html("");
     var container = $(node).find('.chart')[0];
+
 
     plotPreviousTrips(container, this.props.times);
   },
@@ -376,7 +387,7 @@ var BusRoute = React.createClass({
     var legs = this.props.legs;
 
     var nodes = legs.filter(function(leg) { return leg.mode != 'WALK'; }).map(function(leg) {
-      return <BusLeg leg={leg} />
+      return <BusLeg leg={leg} key={leg.endTime} />
     });
 
     var duration = Math.round(this.props.itinerary.duration / 60);
@@ -395,6 +406,14 @@ var BusRoute = React.createClass({
 
 var BusLeg = React.createClass({
   componentDidMount: function() {
+    this.updateChart();
+  },
+
+  componentWillUpdate: function() {
+    this.updateChart();
+  },
+
+  updateChart: function() {
     var chart = $(this.getDOMNode()).find('.chart');
 
     if(routes[this.props.leg.route] != undefined) {
@@ -572,6 +591,8 @@ function addTransit(startCoords, endCoords) {
 
       
     });
+
+    console.log(legs);
 
     var component = React.createElement(BusRoute, {itinerary: results.plan.itineraries[0], legs: legs});
     React.render(component, document.getElementById('bus-results'));
