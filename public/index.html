@@ -1,81 +1,499 @@
 <!DOCTYPE html>
+<head>
 <meta charset="utf-8">
+<link rel="stylesheet prefetch" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic' rel='stylesheet' type='text/css'>
 <style>
   body {
     margin: 0px;
     padding: 0px;
+    font-family: 'Open Sans';
+  }
+
+  .page {
+    min-height: 100vh;
+    width: 100vw;
+    position: relative;
+    box-sizing: border-box;
+  }
+
+  .page .content {
+    box-sizing: border-box;
+    padding: 50px;
+  }
+
+  .page .content p {
+    font-weight: 300;
+  }
+
+  .page.banner {
+    background: linear-gradient(175deg, #537eae, #c5acaf, #dba47d);
+    background-size: 600% 600%;
+    background-position: 100% 0%;
+    /*-webkit-animation: GradientBG 15s ease-in 1;
+    -moz-animation: GradientBG 15s ease-in 1;
+    animation: GradientBG 15s ease-in 1;*/
+    transition: background-position 10s ease-in 2s;
+    -webkit-transition: background-position 10s ease-in 2s; /* Safari 3.1 to 6.0 */
+    padding-top: 5%;
+  }
+
+  .page.banner .summary {
+    font-weight: 300;
+    text-align: left;
+    width: 25%;
+    margin: auto;
+    color: white;
+    padding-top: 40px;
+  }
+
+  .arrow {
+    position: absolute;
+    width: 100%;
+    margin: 0 auto;
+    background: url(./arrow_down.png) center center no-repeat;
+    background-size: 40px;
+    padding-top: 50px;
+    -webkit-animation: bob 1s ease infinite;
+    -moz-animation: bob 1s ease infinite;
+    animation: bob 1s ease infinite;
+  }
+
+  @-webkit-keyframes bob {
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+
+  @-moz-keyframes bob {
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+  
+  @keyframes bob { 
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+
+  .arrow:hover {
+    cursor: pointer;
+    background: url(./arrow_down_alt.png) center center no-repeat;
+    background-size: 40px;
+  }
+
+  .page.banner h1, .page.banner h2, .page.banner h3 {
+    margin: 0px;
+    text-align: center;
+    color: white;
+  }
+
+  .page.banner h1 {
+    font-size: 30pt;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .page.banner h3 {
+    font-size: 10pt;
+  }
+
+  .intro {
+    text-align: center;
+  }
+ 
+  .page.about .content {
+    width: 50%;
+    margin: auto;
+  }
+
+  h1, h2, h3 {
+    font-weight: 300;
+  }
+
+  #bus-example {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 15px;
+  }
+
+  #hubway-example {
+    padding: 15px;
+    border: 1px solid #ccc;
+    display: inline-block;
+  }
+
+  #bus-results h3 {
+    background: #c5acaf;
+    color: white;
+    padding: 3px;
+  }
+
+  #hubway-results h3 {
+    background: #537eae;
+    color: white;
+    padding: 3px;
+  }
+
+  #results ol, #results p {
+    font-size: 10pt;
+  }
+
+  #results ol li {
+    margin-bottom: 5px;
+  }
+
+  #results .route, .station {
+    background: #c5acaf;
+    padding: 2px 4px;
+    color: white;
+    display: inline-block;
   }
 
   #map {
     position: absolute;
-    height: 100%;
-    width: 100%;
-    left: 0px;
+    left: 500px;
     top: 0px;
+    right: 0px;
+    bottom: 0px;
   }
 
   #results {
     position: absolute;
-    top: 140px;
-    height: 200px;
-    left: 20px;
+    top: 100px;
+    bottom: 0px;
+    left: 0px;
     width: 500px;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow: scroll;
     background: rgba(255, 255, 255, 0.75);
-    z-index: 100;
+    z-index:100;
   }
 
-  #results path.line {
+  svg path.line {
     stroke-width: 2;
-    stroke: red;
+    stroke: #537eae;
     fill: transparent;
   }
 
-  #results .axis path, #results .axis line {
+  svg .axis path, #results .axis line {
     fill: none;
     stroke: #555;
     shape-rendering: crispEdges;
   }
 
-  #results .axis text {
+  svg .axis text {
     font-size: 8pt;
     font-family: sans-Serif;
+  }
+
+  svg .label {
+    font-size: 7pt;
   }
 
   #controls {
     box-sizing: border-box;
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 0px;
+    left: 0px;
     width: 500px;
     height: 100px;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.75);
     z-index: 100;
+    background: #537eae;
   }
+
+  #controls div {
+    padding: 5px 0px;
+  }
+
+  #controls label {
+    color: white;
+    text-transform: uppercase;
+    font-weight: 300;
+    width: 150px;
+    display: inline-block;
+  }
+
+  #controls input[type=text] {
+    padding: 5px;
+    width: 300px;
+  }
+
+  #controls input[type=button] {
+    padding: 7px;
+    font-size: 18pt;
+    position: absolute;
+    right: 20px;
+  }
+
 </style>
-<body>
-  
 <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
 <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.1/react.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/react/0.13.1/JSXTransformer.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.0/jquery.scrollTo.min.js'></script>
+</head>
+<body>
 
-<div id='results'>
+<div class='page banner'>
+  <h1>Biking in Boston</h1>
+  <h3>Boston Hubhacks 2015</h3>
+
+  <div class='summary'>
+    <p>We combined data from the MBTA bus system and from 1.5 million Hubway trips to help you decide whether or to bike or ride.</p>
+
+    <p>Make your decision based on how long it's taken Hubway riders to bike the same route compared to how long it will take on the bus.</p>
+  </div>
+
+  <h2>Should I bike, or ride?</h2>
+
+  <div class='arrow'></div>
 </div>
 
-<div id='controls'>
-  <label>Start Location: </label>
-  <input type='text' id='startLocation' value='10 Jamaicaway'>
+<div class='intro'>
+  <hr/>
 
-  <label>End Location: </label>
-  <input type='text' id='endLocation' value='Harvard Square'>
+  <h2>Google Maps doesn't know Boston transit like we do.<br/>
+      We just want to know: how long will this really take?<br/>
+      <br/>
+      Let's introduce transit data.</h2>
 
-  <input type='button' id='go' value='Find Route'>
+  <hr />
+</div>
+  
+<div class='page about'>
+  <div class='content'>
+    <h1>Our Project</h1>
+
+    <p>We brought together data from the MBTA bus system and 1.5 million Hubway trips to build a custom trip planner.</p>
+
+    <p>Our trip planner uses historical data, when available, to give a distribution of travel times rather than a single estimated time.</p>
+
+    <h3>Bus data</h3>
+    <p>From the bus data, we can tell you how early or late a bus route tends to be. It'll look like this:</p>
+
+    <div id='bus-example'></div>
+
+    <p>The graph shows the 25th to 75th percentiles of the wait times for this route. Look to the 25th percentile to get a sense of the worst case travel time if the bus happens to be late to your stop.</p>
+
+    <h3>Hubway</h3>
+    <p>Using the Hubway data, we can tell you how long it's taken other bicyclists to travel the same route. We present this data as a distribution of travel times.</p>
+
+    <div id='hubway-example'></div>
+
+    <p>If you're Lance Armstrong, your trip will probably fall towards the left of the curve. If you're a tourist out for a scenic ride, you will probably be farther right. Use the distribution and knowledge of how fast you like to bike to get a sense of how long the trip will take you.</p>
+
+    <h3>Next steps</h3>
+    <p>This approach to trip planning could be easily extended to cover subway lines as well, given some historical data.</p>
+    <p>The bus analysis could be expanded to calculate how long it took the bus to get from point A to point B in the past. This could be used to build a distribution of bus travel times similar to the hubway analysis.</p>
+
+    <h3>Enough words... try it out!</h3>
+    <p>This project was built with love and burritos by Herb Susmann, Melissa Teng, Nick Ryan, Ben Kotrc, with guest appearances by Kathryn Rodgers for Boston Hubhacks 2015. Thank you to the Hackathon organizers for putting so much time into making these datasets available to us!</p>
+  </div>
 </div>
 
-<div id='map'></div>
+<div class='page planner'>
+  <div id='results'>
+    <div id='bus-results'></div>
+    <div id='hubway-results'></div>
+  </div>
 
-<script>
+  <div id='controls'>
+    <div>
+      <label>Start Location: </label>
+      <input type='text' id='startLocation' value='Faneuil Hall'>
+    </div>
+
+    <div>
+      <label>End Location: </label>
+      <input type='text' id='endLocation' value='Boston Public Library'>
+    </div>
+
+    <input type='button' id='go' value='Find Route'>
+  </div>
+  <div id='map'></div>
+</div>
+
+
+
+<script type='text/jsx'>
+
+var D = React.DOM;
+
+var HubwayRoute = React.createClass({
+  getDefaultProps: function() {
+    return { header: true };
+  },
+
+  componentDidMount: function() {
+    var node = this.getDOMNode();
+    var container = $(node).find('.chart')[0];
+
+    plotPreviousTrips(container, this.props.times);
+  },
+
+  render: function() {
+    var median = Math.round(d3.median(this.props.times));
+
+    var header = "";
+    if(this.props.header == true) {
+      header = (
+          <div>
+            <h3>Hubway</h3>
+            <p>You can take a hubway from the <strong>{this.props.fromStation.station}</strong> station to the <strong>{this.props.toStation.station}</strong> station.</p>
+
+            <p>The median travel time is {median} minutes.</p>
+            
+            <p>Here's the full distribution:</p>
+          </div>
+      );
+    }
+
+    return(
+      <div>
+        {header}
+        <div className='chart'></div>
+      </div>
+    );
+  }
+});
+
+
+
+
+
+var BusRoute = React.createClass({
+  render: function() {
+    var legs = this.props.legs;
+
+    var nodes = legs.filter(function(leg) { return leg.mode != 'WALK'; }).map(function(leg) {
+      return <BusLeg leg={leg} />
+    });
+
+    var duration = Math.round(this.props.itinerary.duration / 60);
+
+    return (
+      <div className='busResults'>
+        <h3>Bus</h3>
+        <p>There is a bus route available that will take about {duration} minutes.</p>
+        <ol>
+          {nodes}
+        </ol>
+      </div>
+    );
+  }
+});
+
+var BusLeg = React.createClass({
+  componentDidMount: function() {
+    var chart = $(this.getDOMNode()).find('.chart');
+
+    if(routes[this.props.leg.route] != undefined) {
+      renderBusWaitTime(chart[0], this.props.leg.route);
+    }
+  },
+
+  render: function() {
+    var leg = this.props.leg;
+    times = routes[leg.route];
+    if(times == undefined) {
+      message = "We don't have data for how early this bus tends to be.";
+    }
+    else {
+      var earlyness = times['50%'];
+      var message = "";
+      if(earlyness < 0) {
+        message = "This route tends to be " + Math.round(-earlyness) + " minutes late.";
+      }
+      else {
+        message = "This route tends to be " + Math.round(earlyness) + " minutes early.";
+      }
+    }
+
+    if(leg.mode == "BUS") {
+      return (
+        <li>
+          <div className='route'>Route {leg.route}</div> from <strong>{leg.from.name}</strong> to <strong>{leg.to.name}</strong>.
+          <div>{message}</div>
+          <div className='chart'></div>
+        </li>
+      );
+    }
+  }
+});
+
+function renderBusWaitTime(container, route) {
+  var times = routes[route];
+
+  var margin = { left: 5, top: 10, right: 5, bottom: 40 };
+  var width = 300 - margin.left - margin.right;
+  var height = 80 - margin.top - margin.bottom;
+
+  var svg = d3.select(container)
+    .append('svg')
+    .attr('width', width + margin.left + margin.right)
+    .attr('height', height + margin.top + margin.bottom)
+    .append('g')
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+  var x = d3.scale.linear()
+    .domain([-30, 10])
+    .range([0, width]);
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .tickFormat(function(d) { return Math.abs(d); });
+  
+  svg.append('g')
+    .attr("class", "x axis")
+    .attr("transform", "translate(0, " + height + ")")
+    .call(xAxis);
+
+  svg.append('text')
+    .attr('x', x(-20))
+    .attr('y', height + 25)
+    .attr('text-anchor', 'middle')
+    .attr('class', 'label')
+    .text('Minutes Late');
+
+  svg.append('text')
+    .attr('x', x(5))
+    .attr('y', height + 25)
+    .attr('text-anchor', 'middle')
+    .attr('class', 'label')
+    .text('Minutes Early');
+
+  var rect = svg.selectAll('.rect')
+    .data([[times['25%'], times['75%']]]);
+
+  rect.enter()
+    .append('rect')
+    .attr('x', function(d) { return x(d[0]); })
+    .attr('width', function(d) { return x(d[1]) - x(d[0]); })
+    .attr('y', 5)
+    .attr('height', 15)
+    .style('fill', '#c5acaf');
+
+  svg.append('text')
+    .attr('class', 'label')
+    .attr('x', x(times['25%']))
+    .attr('y', 4)
+    .attr('text-anchor', 'middle')
+    .text('25th');
+
+  svg.append('text')
+    .attr('class', 'label')
+    .attr('x', x(times['75%']))
+    .attr('y', 4)
+    .attr('text-anchor', 'middle')
+    .text('75th');
+}
 
 // GOOGLE MAPS API
 var mapsApiKey = "AIzaSyBZj6oFwOYPjyvySj8wT1WU0keMpBlgbKc";
@@ -93,8 +511,6 @@ $("#go").click(function() {
     var endAddress = $("#endLocation").val();
 
     clearHighlights();
-
-    $("#results").html("");
 
     for(var i = 0; i < mapLayers.length; i++) {
       map.removeLayer(mapLayers[i]);
@@ -133,42 +549,34 @@ function addTransit(startCoords, endCoords) {
   $.getJSON("http://bikinginboston.com:8080/otp/routers/default/plan", data, function(results) {
     var legs = results.plan.itineraries[0].legs;
 
-    var description = "<strong>Bus</strong>";
-    description += Math.round(results.plan.itineraries[0].duration / 60) + " minutes.";
-    description += "<ol>";
-
     legs.forEach(function(leg) {
-      var color = 'blue';
-      if(leg.mode == 'WALK') { color = 'green'; }
+      var color = '#c5acaf';
+      var opacity = 1;
+      if(leg.mode == 'WALK') { 
+        color = 'white'; 
+        opacity = 0.2;
+      }
 
-      var line = L.polyline([[leg.from.lat, leg.from.lon], [leg.to.lat, leg.to.lon]], { color: color });
+      var line = L.polyline([[leg.from.lat, leg.from.lon], [leg.to.lat, leg.to.lon]], {
+        color: color,
+        fillOpacity: 1,
+        opacity: opacity
+      });
+
       mapLayers.push(line);
       map.addLayer(line);
 
-      if(leg.mode == "BUS") {
-        description += "<li>";
-        description += "Route " + leg.route + " from " + leg.from.name + " to " + leg.to.name + ".<br/>";
-
-        var earlyness = routes[leg.route]['50%'];
-        if(earlyness < 0) {
-          description += "This route is normally " + (-earlyness) + ' minutes late';
-        }
-        else {
-          description += "This route is normally " + (earlyness) + ' minutes early';
-        }
-
-        description += "</li>";
-      }
+      
     });
 
-    description += "</ul>";
-    $("#results").append("<div>" + description + "</div>");
+    var component = React.createElement(BusRoute, {itinerary: results.plan.itineraries[0], legs: legs});
+    React.render(component, document.getElementById('bus-results'));
   });
 }
 
 function addHubway(startCoords, endCoords) {
-  mapLayers.push(L.circle([startCoords.lat, startCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}));
-  mapLayers.push(L.circle([endCoords.lat, endCoords.lng], 25, { color: 'green', fillColor: 'green', fillOpacity: 0.8}));
+  mapLayers.push(L.marker([startCoords.lat, startCoords.lng], { title: 'Start' }));
+  mapLayers.push(L.marker([endCoords.lat, endCoords.lng], { title: 'End' }));
 
   var closestToStart = closestStation(startCoords);
   highlightStation(closestToStart.id);
@@ -177,15 +585,21 @@ function addHubway(startCoords, endCoords) {
   highlightStation(closestToEnd.id);
 
   mapLayers.push(L.polyline([[startCoords.lat, startCoords.lng], [closestToStart.lat, closestToStart.lng]], {
-    color: 'green'
+    color: 'white',
+    fillOpacity: 1,
+    opacity: 0.5
   }));
 
   mapLayers.push(L.polyline([[closestToStart.lat, closestToStart.lng], [closestToEnd.lat, closestToEnd.lng]], {
-      color: 'red'
+      color: '#537eae',
+      fillOpacity: 1,
+      opacity: 1
   }));
   
   mapLayers.push(L.polyline([[endCoords.lat, endCoords.lng], [closestToEnd.lat, closestToEnd.lng]], {
-      color: 'green'
+      color: 'white',
+      fillOpacity: 1,
+      opacity: 0.5
   }));
 
   for(var i = 0; i < mapLayers.length; i++) {
@@ -193,10 +607,13 @@ function addHubway(startCoords, endCoords) {
   }
 
   // Get all the routes that have been made on between these stops
-  $.getJSON("/hubway-density.json", { start: closestToStart.id, end: closestToEnd.id }, plotPreviousTrips);
+  $.getJSON("/hubway-density.json", { start: closestToStart.id, end: closestToEnd.id }, function(data) {
+    var component = React.createElement(HubwayRoute, { times: data, fromStation: closestToStart, toStation: closestToEnd, header: true });
+    React.render(component, document.getElementById('hubway-results'));
+  });
 }
 
-function plotPreviousTrips(trips) {
+function plotPreviousTrips(container, trips) {
   var times = trips;
 
   var xMax = d3.max(times);
@@ -218,8 +635,7 @@ function plotPreviousTrips(trips) {
 
   var ylim = d3.extent(density, function(row) { return row[1]; });
 
-  $("#results").append("<strong>Hubway</strong>");
-  var svg = d3.select("#results").append("svg")
+  var svg = d3.select(container).append("svg")
     .attr("width", width + margin.right + margin.left)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -251,6 +667,13 @@ function plotPreviousTrips(trips) {
     .attr("class", "x axis")
     .attr("transform", "translate(0, " + height + ")")
     .call(xAxis);
+
+  svg.append('text')
+    .attr('class', 'label')
+    .attr('x', width / 2)
+    .attr('y', height + 30)
+    .attr('text-anchor', 'middle')
+    .text('Biking time (minutes)');
 
 
   svg.append("path")
@@ -284,7 +707,7 @@ function closestStation(coords) {
 
 var map = L.map('map', {
   zoomControl: false 
-}).setView([42.3511355, -71.0729669], 13);
+}).setView([42.3511355, -71.0729669], 14);
 
 L.tileLayer('http://{s}.tiles.mapbox.com/v3/herbps10.lh629276/{z}/{x}/{y}.png', {
     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -294,7 +717,8 @@ L.tileLayer('http://{s}.tiles.mapbox.com/v3/herbps10.lh629276/{z}/{x}/{y}.png', 
 var circleStyle = {
     color: '#ccc',
     fillColor: 'white',
-    fillOpacity: 0.5
+    fillOpacity: 0.0,
+    opacity: 0
 };
 
 d3.csv("hubway_stations.csv", function(error, data) {
@@ -306,13 +730,19 @@ d3.csv("hubway_stations.csv", function(error, data) {
       station.lat = parseFloat(station.lat);
       station.lng = parseFloat(station.lng);
 
-      var circle = L.circle([parseFloat(station.lat), parseFloat(station.lng)], 100, circleStyle).addTo(map);
+      var circle = L.circle([parseFloat(station.lat), parseFloat(station.lng)], 40, circleStyle).addTo(map);
 
       circle.bindPopup(station.station);
 
       stationCircles[station.id] = circle;
     });
-});
+
+    // Load hubway example
+    $.getJSON("/hubway-density.json", { start: stations[0].id, end: stations[5].id }, function(data) {
+        var component = React.createElement(HubwayRoute, { times: data, fromStation: stations[0], toStation: stations[5], header: false });
+        React.render(component, document.getElementById('hubway-example'));
+      });
+    });
 
 routes = {};
 
@@ -329,6 +759,15 @@ d3.csv("earlyness_by_route.csv", function(error, data) {
   data.forEach(function(row) {
     routes[row.route] = row;
   });
+
+  var exampleLeg = {
+    route: '66',
+    mode: 'BUS',
+    from: { name: 'Huntington Ave @ Riverway' },
+    to: { name: 'JFK St @ Eliot St' }
+  };
+
+  React.render(<BusLeg leg={exampleLeg} />, document.getElementById('bus-example'));
 });
 
 function highlight_route(start, end) {
@@ -340,8 +779,10 @@ function highlight_route(start, end) {
 
 function highlightStation(id) {
     var hoverStyle = {
-        fillColor: 'red',
-        color: 'red'
+      fillColor: '#537eae',
+      fillOpacity: 1,
+      color: '#537eae',
+      opacity: 1
     };
 
     stationCircles[id].setStyle(hoverStyle);
@@ -352,6 +793,12 @@ function clearHighlights() {
     stationCircles[station.id].setStyle(circleStyle);
   });
 }
+
+$(".arrow").click(function() {
+  $.scrollTo($(".page.about"), 500, {
+    easing: 'swing'
+  });
+});
 
 // From http://bl.ocks.org/mbostock/4341954
 function kernelDensityEstimator(kernel, x) {
