@@ -1,0 +1,131 @@
+.banner {
+    background: linear-gradient(175deg, #537eae, #c5acaf, #dba47d);
+    background-size: 600% 600%;
+    background-position: 100% 0%;
+    transition: background-position 10s ease-in 2s;
+    -webkit-transition: background-position 10s ease-in 2s;
+    padding-top: 10%;
+    text-align: center;
+}
+
+.banner:hover {
+	background-position: 59% 100%;
+}
+
+.page {
+	height: 100%;
+    min-height: 100%;
+    min-width: 100%;
+    width: 100%;
+    width: 100vw;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.summary {
+	width: 435px;
+	text-align: justify;
+	margin: 0 auto;
+	color: #fff;
+}
+
+@media (max-width:500px) {
+	.summary {
+		width: 80%;
+	}
+}
+
+.icon {
+	margin: 15px 0;
+}
+
+.bikeframe {
+	width: auto;
+    margin: 0 auto;
+    background: url(../bikeframe.png) center center no-repeat;
+    background-size: 50px;
+    padding-top: 75px;
+}
+
+.bikewheels {
+	width: 100%;
+	display: inline-block;
+	padding-bottom: 9px;
+}
+
+.right-wh {
+    margin: -63px 48px 0 0;
+    padding-bottom: 63px;
+}
+
+.left-wh {
+    margin: -63px 0 0 48px;
+    padding-bottom: 63px;
+}
+
+.wheel {
+	width: auto;
+    background: url(../bike_wh.png) center center no-repeat;
+    background-size: 25px;
+    -webkit-animation: spin 5s linear infinite;
+    -moz-animation: spin 5s linear infinite;
+    animation: spin 5s linear infinite;
+  }
+
+	@-webkit-keyframes spin {
+	    from{-webkit-transform:rotate(0deg);}
+	    to{-webkit-transform:rotate(360deg);}
+	}
+	@-moz-keyframes spin {
+	    from{-moz-transform:rotate(0deg);}
+	    to{-moz-transform:rotate(360deg);}
+	}
+	@-ms-keyframes spin {
+	    from{-ms-transform:rotate(0deg);}
+	    to{-ms-transform:rotate(360deg);}
+	}
+
+.content {
+    box-sizing: border-box;
+    padding: 30px 0;
+}
+
+.page.about .content {
+	width: 50%;
+	margin: 0 auto;
+}
+
+ul {
+	margin: 0 auto;
+	width: 100%;
+	text-align: center;
+	padding: 10px;
+	background-color: rgba(255,255,255,1);
+	color: #606060;
+}
+
+img {
+	width: 100%;
+	padding-bottom: 20px;
+}
+
+.img-long {
+	overflow-x: scroll;
+}
+
+	.img-long > img {
+		width: auto;
+		height: 600px;
+	}
+
+.img-sm {
+	width: 80%;
+	margin: 0 auto;
+}
+
+.droppin {
+	display: inline-block;
+	vertical-align: middle;
+	width: 20px;
+	padding: 0 7px;
+}

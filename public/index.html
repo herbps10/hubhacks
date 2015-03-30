@@ -2,12 +2,48 @@
 <head>
 <meta charset="utf-8">
 <link href="css/reset.css" rel="stylesheet" type="text/css">
-<link href="css/main.css" rel="stylesheet" type="text/css">
-<link href="css/frontend.css" rel="stylesheet" type="text/css">
+<link href="css/global.css" rel="stylesheet" type="text/css">
+<link href="css/intro.css" rel="stylesheet" type="text/css">
 <link href="css/route-search.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet prefetch" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300" type="text/css">
 <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic' rel='stylesheet' type='text/css'>
 <style>
+  .arrow {
+    position: absolute;
+    width: 100%;
+    margin: 0 auto;
+    background: url(./arrow_down.png) center center no-repeat;
+    background-size: 40px;
+    padding-top: 50px;
+    -webkit-animation: bob 1s ease infinite;
+    -moz-animation: bob 1s ease infinite;
+    animation: bob 1s ease infinite;
+  }
+
+  @-webkit-keyframes bob {
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+
+  @-moz-keyframes bob {
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+  
+  @keyframes bob { 
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+
+  .arrow:hover {
+    cursor: pointer;
+    background: url(./arrow_down_alt.png) center center no-repeat;
+    background-size: 40px;
+  }
+
   #bus-example {
     border: 1px solid #ccc;
     display: inline-block;
@@ -137,21 +173,24 @@
 <body>
 
 <div class='page banner'>
-  <h1>Biking in Boston</h1>
-  <h3>Boston Hubhacks 2015</h3>
-  <br/><br/>
-  <h2>Google Maps doesn't know Boston transit like we do.<br/>
-      We want to help answer a simple question:<br/>
-      how long will this trip really take?<br/>
-      <br/>
-      Let's introduce transit data.</h2>
-
   <div class='summary'>
-    <p>We combined data from the MBTA bus system and from 1.5 million Hubway trips to help you decide whether or to bike or ride.</p>
-
-    <p>Make your decision based on how long it's taken Hubway riders to bike the same route compared to how long it will take on the bus.</p>
+    <h1>Biking in Boston</h1>
+    <h3>Boston Hubhacks 2015</h3>
+    <br/><br/>
+    <h2>Google Maps doesn't know Boston transit like we do.<br/>
+      We want to help answer a simple question:<br/>
+      How long will this trip actually take?</h2>
+    <div class='icon'>
+      <div class='bikeframe'></div>
+      <div class='bikewheels'>
+        <div class='wheel left-wh'></div>
+        <div class='wheel right-wh'></div>
+      </div>
+    </div>
+    <p>We combined transit data from the MBTA bus system and 1.5 million Hubway trips to build a custom trip planner. We use historical data, when available, to give a distribution of travel times rather than a single estimated time.</p>
+    <p>Our trip planner aims to help you make better informed decisions based on how long it's taken Hubway riders to bike the same route compared to how long it will take on the bus.</p>
   </div>
-
+  <br/>
   <div class='arrow'></div>
 </div>
   
@@ -159,18 +198,15 @@
   <div class='content'>
     <h1>Our Project</h1>
 
-    <p>We brought together data from the MBTA bus system and 1.5 million Hubway trips to build a custom trip planner.</p>
-
-    <p>Our trip planner uses historical data, when available, to give a distribution of travel times rather than a single estimated time.</p>
-
-    <h3>Bus data</h3>
+    <h3 class='emphasize'>MBTA Bus</h3>
     <p>From the bus data, we can tell you how early or late a bus route tends to be. It'll look like this:</p>
 
     <div id='bus-example'></div>
 
     <p>The graph shows the 25th to 75th percentiles of the wait times for this route. Look to the 25th percentile to get a sense of the worst case travel time if the bus happens to be late to your stop.</p>
 
-    <h3>Hubway</h3>
+    <br/><br/>
+    <h3 class='emphasize'>Hubway</h3>
     <p>Using the Hubway data, we can tell you how long it's taken other bicyclists to travel the same route. We present this data as a distribution of travel times.</p>
 
     <div id='hubway-example'></div>
