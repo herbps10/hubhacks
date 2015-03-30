@@ -1,117 +1,13 @@
 <!DOCTYPE html>
 <head>
 <meta charset="utf-8">
+<link href="css/reset.css" rel="stylesheet" type="text/css">
+<link href="css/main.css" rel="stylesheet" type="text/css">
+<link href="css/frontend.css" rel="stylesheet" type="text/css">
+<link href="css/route-search.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet prefetch" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300" type="text/css">
 <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic' rel='stylesheet' type='text/css'>
 <style>
-  body {
-    margin: 0px;
-    padding: 0px;
-    font-family: 'Open Sans';
-  }
-
-  .page {
-    min-height: 100vh;
-    width: 100vw;
-    position: relative;
-    box-sizing: border-box;
-  }
-
-  .page .content {
-    box-sizing: border-box;
-    padding: 50px;
-  }
-
-  .page .content p {
-    font-weight: 300;
-  }
-
-  .page.banner {
-    background: linear-gradient(175deg, #537eae, #c5acaf, #dba47d);
-    background-size: 600% 600%;
-    background-position: 100% 0%;
-    /*-webkit-animation: GradientBG 15s ease-in 1;
-    -moz-animation: GradientBG 15s ease-in 1;
-    animation: GradientBG 15s ease-in 1;*/
-    transition: background-position 10s ease-in 2s;
-    -webkit-transition: background-position 10s ease-in 2s; /* Safari 3.1 to 6.0 */
-    padding-top: 5%;
-  }
-
-  .page.banner .summary {
-    font-weight: 300;
-    text-align: left;
-    width: 25%;
-    margin: auto;
-    color: white;
-    padding-top: 40px;
-  }
-
-  .arrow {
-    position: absolute;
-    width: 100%;
-    margin: 0 auto;
-    background: url(./arrow_down.png) center center no-repeat;
-    background-size: 40px;
-    padding-top: 50px;
-    -webkit-animation: bob 1s ease infinite;
-    -moz-animation: bob 1s ease infinite;
-    animation: bob 1s ease infinite;
-  }
-
-  @-webkit-keyframes bob {
-      0%{margin: 3px 0 3px 0;}
-      50%{margin: 0 0 6px 0;}
-      100%{margin: 3px 0 3px 0;}
-  }
-
-  @-moz-keyframes bob {
-      0%{margin: 3px 0 3px 0;}
-      50%{margin: 0 0 6px 0;}
-      100%{margin: 3px 0 3px 0;}
-  }
-  
-  @keyframes bob { 
-      0%{margin: 3px 0 3px 0;}
-      50%{margin: 0 0 6px 0;}
-      100%{margin: 3px 0 3px 0;}
-  }
-
-  .arrow:hover {
-    cursor: pointer;
-    background: url(./arrow_down_alt.png) center center no-repeat;
-    background-size: 40px;
-  }
-
-  .page.banner h1, .page.banner h2, .page.banner h3 {
-    margin: 0px;
-    text-align: center;
-    color: white;
-  }
-
-  .page.banner h1 {
-    font-size: 30pt;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  .page.banner h3 {
-    font-size: 10pt;
-  }
-
-  .intro {
-    text-align: center;
-  }
- 
-  .page.about .content {
-    width: 50%;
-    margin: auto;
-  }
-
-  h1, h2, h3 {
-    font-weight: 300;
-  }
-
   #bus-example {
     border: 1px solid #ccc;
     display: inline-block;
@@ -243,6 +139,12 @@
 <div class='page banner'>
   <h1>Biking in Boston</h1>
   <h3>Boston Hubhacks 2015</h3>
+  <br/><br/>
+  <h2>Google Maps doesn't know Boston transit like we do.<br/>
+      We want to help answer a simple question:<br/>
+      how long will this trip really take?<br/>
+      <br/>
+      Let's introduce transit data.</h2>
 
   <div class='summary'>
     <p>We combined data from the MBTA bus system and from 1.5 million Hubway trips to help you decide whether or to bike or ride.</p>
@@ -250,20 +152,7 @@
     <p>Make your decision based on how long it's taken Hubway riders to bike the same route compared to how long it will take on the bus.</p>
   </div>
 
-  <h2>Should I bike, or ride?</h2>
-
   <div class='arrow'></div>
-</div>
-
-<div class='intro'>
-  <hr/>
-
-  <h2>Google Maps doesn't know Boston transit like we do.<br/>
-      We just want to know: how long will this really take?<br/>
-      <br/>
-      Let's introduce transit data.</h2>
-
-  <hr />
 </div>
   
 <div class='page about'>
