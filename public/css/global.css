@@ -55,3 +55,7 @@ h3 {
 	text-decoration: underline;
 }
 
+.italic {
+	font-style: italic;
+	font-size: 11px;
+}
