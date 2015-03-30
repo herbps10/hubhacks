@@ -102,6 +102,7 @@
     overflow: scroll;
     background: rgba(255, 255, 255, 0.75);
     z-index:100;
+    font-family:'Open Sans', Arial, Helvetica Neue, sans-serif;
   }
 
   svg path.line {
@@ -131,7 +132,7 @@
     top: 0px;
     left: 0px;
     width: 500px;
-    height: 100px;
+    height: 140px;
     padding: 15px;
     z-index: 100;
     background: #537eae;
@@ -152,13 +153,26 @@
   #controls input[type=text] {
     padding: 5px;
     width: 300px;
+    font-family:'Open Sans', Arial, Helvetica Neue, sans-serif;
   }
 
   #controls input[type=button] {
-    padding: 7px;
-    font-size: 18pt;
+    padding: 4px 7px;
+    margin: 5px 0;
+    font-family:'Open Sans', Arial, Helvetica Neue, sans-serif;
+    text-transform: uppercase;
+    background-color: rgba(0,0,0,0);
+    color: #fff;
+    border: 1px solid #fff;
+    border-radius: 0;
+    font-size: 14px;
     position: absolute;
     right: 20px;
+  }
+
+  #controls input[type=button]:hover {
+    background-color: rgba(255,255,255,.5);
+    cursor: pointer;
   }
 
 </style>
