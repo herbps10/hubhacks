@@ -4,7 +4,6 @@
 <link href="css/reset.css" rel="stylesheet" type="text/css">
 <link href="css/global.css" rel="stylesheet" type="text/css">
 <link href="css/intro.css" rel="stylesheet" type="text/css">
-<link href="css/route-search.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet prefetch" href="http://fonts.googleapis.com/css?family=Open+Sans:400,300" type="text/css">
 <link href='http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic' rel='stylesheet' type='text/css'>
 <style>
@@ -48,12 +47,14 @@
     border: 1px solid #ccc;
     display: inline-block;
     padding: 15px;
+    margin: 10px 0px;
   }
 
   #hubway-example {
     padding: 15px;
     border: 1px solid #ccc;
     display: inline-block;
+    margin: 5px 0px;
   }
 
   #bus-results h3 {
@@ -70,6 +71,13 @@
 
   #results ol, #results p {
     font-size: 10pt;
+    margin-bottom: 10px;
+  }
+
+  #results ol {
+    list-style-type: decimal;
+    padding-left: 20px;
+
   }
 
   #results ol li {
@@ -93,7 +101,7 @@
 
   #results {
     position: absolute;
-    top: 100px;
+    top: 140px;
     bottom: 0px;
     left: 0px;
     width: 500px;
@@ -103,6 +111,11 @@
     background: rgba(255, 255, 255, 0.75);
     z-index:100;
     font-family:'Open Sans', Arial, Helvetica Neue, sans-serif;
+  }
+
+  #results h3 {
+    margin-bottom: 10px;
+    margin-top: 5px;
   }
 
   svg path.line {
@@ -333,6 +346,7 @@ var BusRoute = React.createClass({
       <div className='busResults'>
         <h3>Bus</h3>
         <p>There is a bus route available that will take about {duration} minutes.</p>
+        <p>Here are the steps:</p>
         <ol>
           {nodes}
         </ol>
