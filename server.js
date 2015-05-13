@@ -2,11 +2,15 @@ var fs = require('fs');
 var mongojs = require('mongojs');
 var express = require('express');
 var path = require('path');
+var request = require('request-json');
+var qs = require('qs');
 
 var db = mongojs.connect("hubhacks");
 var hubway = db.collection('hubway');
 
 var app = express();
+
+var client = request.createClient('http://localhost:8080');
 
 app.use(function (req, res, next) {
 
@@ -41,6 +45,14 @@ app.get('/hubway-density.json', function(req, res) {
     res.json(rows.map(function(row) {
       return row.duration / 60;
     }));
+  });
+});
+
+app.get('/trip-planner', function(req, res) {
+  var url = '/otp/routers/default/plan?';
+  var params = qs.stringify(req.query);
+  client.get(url + params, req.query, function(err, result, body) {
+    res.json(body);
   });
 });
 
