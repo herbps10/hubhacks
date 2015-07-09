@@ -2,14 +2,14 @@
     background: linear-gradient(175deg, #537eae, #c5acaf, #dba47d);
     background-size: 600% 600%;
     background-position: 100% 0%;
-    transition: background-position 10s ease-in 2s;
-    -webkit-transition: background-position 10s ease-in 2s;
+    transition: background-position 7s ease-in 0.5s;
+    -webkit-transition: background-position 7s ease-in 0.5s;
     padding-top: 10%;
     text-align: center;
 }
 
 .banner:hover {
-	background-position: 59% 100%;
+  background-position: 59% 100%;
 }
 
 .page {
@@ -24,20 +24,68 @@
 .summary {
 	width: 435px;
 	text-align: justify;
-	margin: 0 auto;
+	margin: 0 auto 20px;
 	color: #fff;
 }
 
+.summary h3 {
+  text-align: center;
+  padding: 10px 0 0;
+}
+
+.summary h2 {
+  border-top:1px solid #fff;
+  border-bottom: 1px solid #fff;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.arrow {
+    display: inline-block;
+    width: 40px;
+    margin: 0 auto;
+    background: url(../assets/arrow_down.png) center center no-repeat;
+    background-size: 40px;
+    padding-top: 50px;
+    -webkit-animation: bob 1s ease infinite;
+    -moz-animation: bob 1s ease infinite;
+    animation: bob 1s ease infinite;
+  }
+
+  @-webkit-keyframes bob {
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+
+  @-moz-keyframes bob {
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+  
+  @keyframes bob { 
+      0%{margin: 3px 0 3px 0;}
+      50%{margin: 0 0 6px 0;}
+      100%{margin: 3px 0 3px 0;}
+  }
+
+  .arrow:hover {
+    cursor: pointer;
+    background: url(../assets/arrow_down_alt.png) center center no-repeat;
+    background-size: 40px;
+  }
+  
 .icon {
-	margin: 15px 0;
+	margin: 15px 0 0;
 }
 
 .bikeframe {
 	width: auto;
-    margin: 0 auto;
-    background: url(../bikeframe.png) center center no-repeat;
-    background-size: 50px;
-    padding-top: 75px;
+  margin: 0 auto;
+  background: url(../assets/bikeframe.png) center center no-repeat;
+  background-size: 50px;
+  padding-top: 75px;
 }
 
 .bikewheels {
@@ -58,12 +106,12 @@
 
 .wheel {
 	width: auto;
-    background: url(../bike_wh.png) center center no-repeat;
-    background-size: 25px;
-    -webkit-animation: spin 5s linear infinite;
-    -moz-animation: spin 5s linear infinite;
-    animation: spin 5s linear infinite;
-  }
+  background: url(../assets/bike_wh.png) center center no-repeat;
+  background-size: 25px;
+  -webkit-animation: spin 5s linear infinite;
+  -moz-animation: spin 5s linear infinite;
+  animation: spin 5s linear infinite;
+}
 
 	@-webkit-keyframes spin {
 	    from{-webkit-transform:rotate(0deg);}
@@ -80,32 +128,19 @@
 
 .content {
     box-sizing: border-box;
-    padding: 25px 0;
-	text-align: justify;
+	  text-align: justify;
 }
 
 .page.about .content {
-	width: 450px;
+	width: 95%;
 	margin: 0 auto;
+  padding: 0 0 25px;
 }
 
 @media (max-width:500px) {
 	.summary {
 		width: 80%;
 	}
-
-	.page.about .content {
-		width: 85%;
-	}
-}
-
-ul {
-	margin: 0 auto;
-	width: 100%;
-	text-align: center;
-	padding: 10px;
-	background-color: rgba(255,255,255,1);
-	color: #606060;
 }
 
 .droppin {

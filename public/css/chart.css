@@ -1,0 +1,214 @@
+  #skyline {
+      max-width:500px;
+      max-height:137px;
+      margin: 0 auto 10px;
+  }
+
+  #bus-example {
+    display: inline-block;
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  #hubway-example {
+    padding: 15px;
+    display: inline-block;
+    margin: 5px auto;
+  }
+
+  #bus-results h2 {
+    color: #93bf43;
+    font-weight: bold;
+  }
+
+  #hubway-results h2 {
+    color: #93bf43;
+    font-weight: bold;
+  }
+
+  #results ol, #results p {
+    font-size: 10pt;
+    margin-bottom: 10px;
+  }
+
+  #results ol {
+    list-style-type: decimal;
+    padding-left: 20px;
+
+  }
+
+  #results ol li {
+    margin-bottom: 5px;
+  }
+
+  #bus-example .route, #results .route, .station {
+    color: #714461;
+    font-weight: bold;
+    padding: 2px 4px;
+    display: inline-block;
+  }
+
+  #map {
+    position: absolute;
+    left: 50%;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+  }
+
+  #results {
+    position: absolute;
+    top: 125px;
+    bottom: 0px;
+    left: 0px;
+    width: 50%;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow: scroll;
+    background: rgba(255, 255, 255, 0.75);
+    z-index:100;
+    font-family:'Open Sans', Arial, Helvetica Neue, sans-serif;
+  }
+
+  #results h2 {
+    margin-bottom: 10px;
+    margin-top: 5px;
+  }
+
+  svg path.line {
+    stroke-width: 2;
+    stroke: #537eae;
+    fill: transparent;
+  }
+
+  svg .axis path, #results .axis line {
+    fill: none;
+    stroke: #555;
+    shape-rendering: crispEdges;
+  }
+
+  svg .axis text {
+    font-size: 8pt;
+    font-family: sans-Serif;
+  }
+
+  svg .label {
+    font-size: 7pt;
+  }
+
+  #controls {
+    box-sizing: border-box;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 50%;
+    height: 130px;
+    padding: 10px;
+    z-index: 100;
+    border-bottom: 1px solid #56493a;
+  }
+
+  #controls div {
+    padding: 5px 0px;
+  }
+
+  #controls label {
+    color: #316b79;
+    text-transform: uppercase;
+    font-weight: 300;
+    display: inline-block;
+  }
+
+  #controls input[type=text] {
+    padding: 5px;
+    color: #4e4436;
+    text-transform: uppercase;
+    font-family:'Lato', Arial, Helvetica Neue, sans-serif;
+    font-size: 11pt;
+    font-weight: 300;
+    border: none;
+  	border-bottom: 1px solid #316b79;
+  }
+
+  #controls #go {
+    padding: 4px 7px;
+    margin: 5px 0 0;
+    font-family:'Open Sans', Arial, Helvetica Neue, sans-serif;
+    text-transform: uppercase;
+    background-color: rgba(0,0,0,0);
+    color: #316b79;
+    border: 1px solid #316b79;
+    border-radius: 4px;
+    font-size: 14px;
+    position: absolute;
+    right: 20px;
+  }
+
+  #controls #go:hover {
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  #controls #help-btn {
+  	text-align: center;
+  	border: 1px solid #ab5b5b;
+  	color: #ab5b5b;
+  	width: 18px;
+  	height:18px;
+  	padding: 0;
+  	border-radius: 50%;
+  	float: right;
+  	line-height: normal;
+  	cursor: pointer;
+  }
+
+  #controls #help-btn:hover {
+  	opacity: 0.5;
+  }
+
+ .about {
+ 	overflow: auto;
+  	position: fixed;
+	top: 10px;
+	z-index: 200;
+	left: 10%;
+	background-color: #fff;
+	border: 1px solid black;
+	min-width: 80%;
+	width: 80%;
+	height: 95%;
+  	min-height: 95%;
+  }
+
+#controls .left-col {
+    width: 49%;
+    margin-right: 0;
+}
+
+#controls .right-col {
+	text-align: right;
+    width: 49%;
+    float: right;
+    position: relative;
+    margin-right: 6px;
+    top: -41px;
+}
+
+#controls .left-col input[type="text"], #controls .right-col input[type="text"] {
+	min-width: 78%;
+}
+
+.about .x {
+	position: absolute;
+	font-family: 'Open Sans', Arial, sans-serif;
+	font-size: 26px;
+	font-weight: 300;
+	right: 10px;
+	line-height: normal;
+	top: 5px;
+	cursor: pointer;
+}
+
+.about .x:hover {
+	opacity: 0.5;
+}
