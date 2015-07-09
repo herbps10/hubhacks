@@ -1,4 +1,5 @@
   #skyline {
+    background: url('../assets/skyline.png') no-repeat 60% 100%;
       max-width:500px;
       max-height:137px;
       margin: 0 auto 10px;
